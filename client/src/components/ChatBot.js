@@ -1,15 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { TextField, Button, Box, Typography, Paper, Avatar, Tooltip, Fade, Popper, ClickAwayListener } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper, Avatar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { keyframes } from '@mui/system';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GoogleIcon from '@mui/icons-material/Google';
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
-import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import SideButtons from './SideButtons';
 
 const fadeIn = keyframes`
   from {
@@ -36,8 +34,6 @@ const ChatBot = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
-  const [openHours, setOpenHours] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
   const particlesInit = async (engine) => {
@@ -52,38 +48,15 @@ const ChatBot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const login = useGoogleLogin({
-    onSuccess: async (response) => {
-      try {
-        const serverResponse = await axios.post('http://localhost:5000/google-login', {
-          googleToken: response.access_token
-        });
-        const token = serverResponse.data.token;
-        localStorage.setItem('token', token);
-        setIsLoggedIn(true);
-
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { text: 'Welcome, you have successfully logged in, now you can make an appointment, write me the desired time.', sender: 'bot' }
-        ]);
-      } catch (error) {
-        console.error('Login error:', error);
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { text: 'A connection error occurred. Please try again later.', sender: 'bot' }
-        ]);
-      }
-    },
-    onError: () => {
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { text: 'A connection error occurred. Please try again later.', sender: 'bot' }
-      ]);
-    }
-  });
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { text: 'Welcome, you have successfully logged in, now you can make an appointment, write me the desired time.', sender: 'bot' }
+    ]);
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
     setIsLoggedIn(false);
     setMessages(prevMessages => [
       ...prevMessages,
@@ -96,23 +69,29 @@ const ChatBot = () => {
       setMessages([...messages, { text: input, sender: 'user' }]);
       const userMessage = input;
       setInput('');
-      setIsTyping(true);
 
+      if (!isLoggedIn) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: "Oops! You're not logged in yet. To save your appointment, please sign in with Google.", sender: 'bot' },
+        ]);
+        return;
+      }
+      setIsTyping(true);
       try {
+        const token = localStorage.getItem('token');
         const response = await fetch('http://localhost:5000/appointment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`  
           },
           body: JSON.stringify({ text: userMessage }),
         });
-
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-
         const data = await response.json();
-
         setIsTyping(false);
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -127,15 +106,6 @@ const ChatBot = () => {
         ]);
       }
     }
-  };
-
-  const handleOpenHoursClick = (event) => {
-    setAnchorEl(event.currentTarget);
-    setOpenHours(!openHours);
-  };
-
-  const handleClickAway = () => {
-    setOpenHours(false);
   };
 
   return (
@@ -201,159 +171,11 @@ const ChatBot = () => {
           zIndex: -1,
         }}
       />
-      <ClickAwayListener onClickAway={handleClickAway}>
-        <Box
-          sx={{
-            position: 'fixed',
-            left: '30px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 10,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <Tooltip title={isLoggedIn ? 'Sign out' : 'Sign in with Google'} placement="right">
-            <Button
-              onClick={isLoggedIn ? handleLogout : login}
-              sx={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                backgroundColor: '#6b5ce7',
-                color: 'white',
-                boxShadow: '0 4px 10px rgba(107, 92, 231, 0.3)',
-                '&:hover': {
-                  backgroundColor: '#5346c7',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-            >
-              <GoogleIcon fontSize="large" />
-            </Button>
-          </Tooltip>
 
-          <Tooltip title="Opening Hours" placement="right">
-            <Button
-              onClick={handleOpenHoursClick}
-              sx={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                backgroundColor: '#6b5ce7',
-                color: 'white',
-                boxShadow: '0 4px 10px rgba(107, 92, 231, 0.3)',
-                '&:hover': {
-                  backgroundColor: '#5346c7',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-            >
-              <AccessTimeIcon fontSize="large" />
-            </Button>
-          </Tooltip>
-
-          <Popper
-            open={openHours}
-            anchorEl={anchorEl}
-            placement="right-start"
-            transition
-            sx={{ zIndex: 1200 }}
-          >
-            {({ TransitionProps }) => (
-              <Fade {...TransitionProps} timeout={350}>
-                <Paper
-                  elevation={4}
-                  sx={{
-                    p: 3,
-                    mt: 1.5,
-                    ml: 1.5,
-                    width: 250,
-                    borderRadius: 3,
-                    backgroundColor: 'white',
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-                  }}
-                >
-                  <Typography variant="h6" sx={{
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    color: '#6b5ce7',
-                    mb: 2,
-                    textAlign: 'center',
-                    fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif',
-                    letterSpacing: '0.5px'
-                  }}>
-                    Opening Hours
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" sx={{
-                        fontWeight: 500,
-                        fontSize: '0.85rem',
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        Sunday - Thursday:
-                      </Typography>
-                      <Typography variant="body2" sx={{
-                        fontSize: '0.85rem',
-                        fontWeight: 400,
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        08:00 - 20:00
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" sx={{
-                        fontWeight: 500,
-                        fontSize: '0.85rem',
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        Friday:
-                      </Typography>
-                      <Typography variant="body2" sx={{
-                        fontSize: '0.85rem',
-                        fontWeight: 400,
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        08:00 - 14:00
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" sx={{
-                        fontWeight: 500,
-                        fontSize: '0.85rem',
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        Saturday:
-                      </Typography>
-                      <Typography variant="body2" sx={{
-                        fontSize: '0.85rem',
-                        fontWeight: 400,
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        Closed
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px solid #eee' }}>
-                      <Typography variant="body2" sx={{
-                        color: '#666',
-                        textAlign: 'center',
-                        fontSize: '0.75rem',
-                        fontWeight: 400,
-                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
-                      }}>
-                        Customer Service: 03-1234567
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Paper>
-              </Fade>
-            )}
-          </Popper>
-        </Box>
-      </ClickAwayListener>
+      <SideButtons
+        onLoginSuccess={handleLoginSuccess}
+        onLogout={handleLogout}
+      />
 
       <Box
         sx={{
@@ -387,18 +209,19 @@ const ChatBot = () => {
             <SmartToyIcon />
           </Avatar>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-              AI Assistant
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1.1rem', mr: 1 }}>
+                MediBot
+              </Typography>
+            </Box>
             <Typography variant="body2" sx={{ opacity: 0.8 }}>
               Online | Ready to help
             </Typography>
           </Box>
-          {/* Show login status */}
           {isLoggedIn && (
             <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                מחובר
+                {localStorage.getItem('userName') || 'User'}
               </Typography>
               <Avatar
                 sx={{
@@ -645,3 +468,4 @@ const ChatBot = () => {
 };
 
 export default ChatBot;
+

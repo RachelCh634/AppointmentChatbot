@@ -76,8 +76,11 @@ def handle_google_login(google_token):
         if isinstance(token, bytes):
             token = token.decode('utf-8')
 
-        print("User login success. Returning token.")
-        return jsonify({'token': token})
+        print("User login success. Returning token and username.")
+        return jsonify({
+            'token': token,
+            'userName': user['displayName'] or user['fullName']})
+
 
     except Exception as e:
         print(f'Google login error (main except): {e}')

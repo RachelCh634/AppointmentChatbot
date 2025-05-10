@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from appointment_processor import handle_appointment_request
-from users import handle_google_login
+from pages.appointment_processor import handle_appointment_request
+from pages.google_login import handle_google_login
 app = Flask(__name__)
 
 CORS(app)  
@@ -10,9 +10,11 @@ CORS(app)
 def appointment():
     data = request.get_json() 
     text = data.get('text') 
-    result = handle_appointment_request(text)
+    token = request.headers.get('Authorization')
+    if token and token.startswith('Bearer '):
+        token = token.split(' ')[1] 
+    result = handle_appointment_request(text, token)
     return jsonify(result)
-
 
 @app.route('/google-login', methods=['POST'])
 def google_login():

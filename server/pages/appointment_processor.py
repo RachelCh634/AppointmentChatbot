@@ -1,7 +1,9 @@
 import parsedatetime
 import datetime
 import re
-from calendar_utils import is_time_available, create_appointment_event
+import jwt
+from pages.calendar_utils import is_time_available, create_appointment_event
+from pages.google_login import secret_key 
 
 def extract_datetime(text):
     time_pattern = r'at\s+(\d{1,2})(?:[:.]?(\d{2}))?(?:\s*(am|pm))?'
@@ -55,16 +57,33 @@ def get_operating_hours_message():
             "Friday: 8:00 AM - 12:00 PM\n"
             "Saturday: Closed")
 
-def handle_appointment_request(text):
+def handle_appointment_request(text, token=None):
     dt = extract_datetime(text)
     if dt:
         if is_within_operating_hours(dt):
             dt_obj = datetime.datetime(*dt[:6])
             formatted_date = dt_obj.strftime('%Y-%m-%d %H:%M')
-
+            print(f"Extracted datetime: {dt_obj}")
+            print(f"Formatted date: {formatted_date}")
+            print(is_time_available(dt_obj))            
+            user_info = None
+            user_name = "Anonymous"
+            if token:
+                try:
+                    user_info = jwt.decode(token, secret_key, algorithms=['HS256'])
+                    user_id = user_info.get('id')
+                    user_email = user_info.get('email')
+                    user_name = user_info.get('name', user_email) 
+                    print(f"User info from token: {user_info}")
+                except Exception as e:
+                    print(f"Error decoding token: {e}")
+            
             if is_time_available(dt_obj):
-                create_appointment_event(dt_obj)
-                return {"status": "success", "message": f"Appointment booked at {formatted_date}"}
+                create_appointment_event(dt_obj, user_name = user_name)
+                return {
+                    "status": "success", 
+                    "message": f"Appointment booked at {formatted_date} for {user_name}"
+                }
             else:
                 return {
                     "status": "error",
@@ -75,7 +94,7 @@ def handle_appointment_request(text):
             formatted_date = datetime.datetime(*dt[:6]).strftime('%Y-%m-%d %H:%M')
             return {
                 "status": "error",
-                "message": f"The requested time ({formatted_date}) is outside clinic operating hours.\n\n{get_operating_hours_message()}"
+                "message": f"The requested time ({formatted_date}) is outside clinic operating hours."
             }
     else:
         return {"status": "error", "message": "Couldn't understand the date from the message"}
