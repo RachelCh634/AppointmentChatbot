@@ -73,7 +73,7 @@ const ChatBot = () => {
       if (!isLoggedIn) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: "Oops! You're not logged in yet. To save your appointment, please sign in with Google.", sender: 'bot' },
+          { text: "Oops! You are not logged in yet.\n So that I can schedule an appointment for you, please log in using Google.", sender: 'bot' },
         ]);
         return;
       }
@@ -84,7 +84,7 @@ const ChatBot = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`  
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ text: userMessage }),
         });

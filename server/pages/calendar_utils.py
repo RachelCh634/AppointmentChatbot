@@ -12,7 +12,6 @@ credentials = service_account.Credentials.from_service_account_file(
 
 service = build('calendar', 'v3', credentials=credentials)
 
-
 def is_time_available(start_time: datetime, duration_minutes=30) -> bool:
     if start_time.tzinfo is None:
         jerusalem = pytz.timezone('Asia/Jerusalem')
@@ -32,7 +31,7 @@ def is_time_available(start_time: datetime, duration_minutes=30) -> bool:
 
 
 def create_appointment_event(start_time: datetime, user_name, duration_minutes=30):
-    end_time = start_time + timedelta(minutes=duration_minutes)
+    end_time = start_time + timedelta(minutes=duration_minutes-1)
     event = {
         'summary': f'Appointment for {user_name}',
         'start': {'dateTime': start_time.isoformat(), 'timeZone': 'Asia/Jerusalem'},
