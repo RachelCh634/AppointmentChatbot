@@ -35,6 +35,7 @@ const ChatBot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || '');
 
   const particlesInit = async (engine) => {
     await loadSlim(engine);
@@ -63,6 +64,13 @@ const ChatBot = () => {
       { text: 'You have successfully logged out.', sender: 'bot' }
     ]);
   };
+  
+  // שמירת מזהה השיחה בלוקל סטורג'
+  useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem('sessionId', sessionId);
+    }
+  }, [sessionId]);
 
   const handleSendMessage = async () => {
     if (input.trim()) {
@@ -86,12 +94,21 @@ const ChatBot = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ text: userMessage }),
+          body: JSON.stringify({ 
+            text: userMessage,
+            session_id: sessionId  // שליחת מזהה השיחה
+          }),
         });
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
+        
+        // שמירת מזהה השיחה שהתקבל מהשרת
+        if (data.session_id) {
+          setSessionId(data.session_id);
+        }
+        
         setIsTyping(false);
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -107,6 +124,9 @@ const ChatBot = () => {
       }
     }
   };
+
+  // שאר הקוד...
+
 
   return (
     <>
@@ -302,7 +322,7 @@ const ChatBot = () => {
 
               <Box
                 sx={{
-                  padding: 1.5,
+                  padding: 1.2,
                   maxWidth: '75%',
                   backgroundColor: message.sender === 'user' ? '#6b5ce7' : '#f0f2f5',
                   color: message.sender === 'user' ? 'white' : 'black',
@@ -311,7 +331,10 @@ const ChatBot = () => {
                     : '18px 18px 18px 4px',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                   wordBreak: 'break-word',
-                  fontWeight: 400,
+                  fontWeight: 300,
+                  fontSize: '0.9rem',
+                  fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif',
+                  whiteSpace: 'pre-wrap',
                 }}
               >
                 {message.text}

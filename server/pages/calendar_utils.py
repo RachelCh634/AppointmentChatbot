@@ -31,6 +31,7 @@ def is_time_available(start_time: datetime, duration_minutes=30) -> bool:
 
 
 def create_appointment_event(start_time: datetime, user_name, duration_minutes=30):
+    print(f"Creating appointment event for {user_name} at {start_time}")
     end_time = start_time + timedelta(minutes=duration_minutes-1)
     event = {
         'summary': f'Appointment for {user_name}',

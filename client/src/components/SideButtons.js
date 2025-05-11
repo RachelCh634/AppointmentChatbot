@@ -146,7 +146,7 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                       fontWeight: 400,
                       fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
                     }}>
-                      08:00 - 20:00
+                      08:00 - 19:00
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -162,7 +162,7 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                       fontWeight: 400,
                       fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif'
                     }}>
-                      08:00 - 14:00
+                      08:00 - 12:00
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
