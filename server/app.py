@@ -5,12 +5,14 @@ from pages.google_login import handle_google_login
 import uuid
 
 app = Flask(__name__)
+
 CORS(app)  
 
 conversation_history = {}  
 
 @app.route('/appointment', methods=['POST', 'OPTIONS'])
 def appointment():
+    
     if request.method == 'OPTIONS':
         response = jsonify({})
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -35,7 +37,7 @@ def appointment():
     if auth_header and auth_header.startswith('Bearer '):
         token = auth_header.split(' ')[1]
     
-    result = handle_appointment_request(text, token, conversation_history[session_id])    
+    result = handle_appointment_request(text, token, conversation_history[session_id])
     conversation_history[session_id].append({"role": "assistant", "content": result["message"]})
     response = jsonify({
         "message": result["message"],
@@ -43,8 +45,9 @@ def appointment():
         "session_id": session_id
     })
     response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
 
+
+    return response
 @app.route('/google-login', methods=['POST'])
 def google_login():
     data = request.json
