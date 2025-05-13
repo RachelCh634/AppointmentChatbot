@@ -8,6 +8,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import LoginIcon from '@mui/icons-material/Login';
 
 const SideButtons = ({ onLoginSuccess, onLogout }) => {
   const [openHours, setOpenHours] = useState(false);
@@ -36,7 +37,6 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
         if (isDoctorLoggedIn) {
           handleDoctorLogout();
         }
-
         const serverResponse = await axios.post('http://localhost:5000/google-login', {
           googleToken: response.access_token
         });
@@ -271,16 +271,15 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                   }
                 }}
               >
-                <Typography variant="h6" sx={{
-                  fontWeight: 600,
-                  fontSize: '1.2rem',
-                  color: '#6b5ce7',
+                <Typography sx={{
+                  fontWeight: 500,
+                  fontSize: '1.1rem',
+                  color: '#5346c7',
                   mb: 3,
                   textAlign: 'center',
-                  fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif',
                   letterSpacing: '0.5px'
                 }}>
-                  Doctor Login
+                  Doctors Login
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   <TextField
@@ -293,17 +292,19 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <PersonIcon sx={{ color: '#6b5ce7' }} />
+                          <PersonIcon sx={{ color: '#5346c7', opacity: 0.9 }} />
                         </InputAdornment>
                       ),
                       sx: {
                         borderRadius: 2,
+                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif',
+                        fontSize: '0.9rem',
                         '&:hover .MuiOutlinedInput-notchedOutline': {
                           borderColor: '#6b5ce7',
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                           borderColor: '#6b5ce7',
-                        }
+                        },
                       }
                     }}
                     sx={{
@@ -313,6 +314,7 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                     }}
                     disabled={isLoading}
                   />
+
                   <TextField
                     label="Password"
                     type="password"
@@ -325,17 +327,19 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockIcon sx={{ color: '#6b5ce7' }} />
+                          <LockIcon sx={{ color: '#5346c7', opacity: 0.9 }} />
                         </InputAdornment>
                       ),
                       sx: {
                         borderRadius: 2,
+                        fontFamily: '"Poppins", "Segoe UI", Roboto, sans-serif',
+                        fontSize: '0.9rem',
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#6b5ce7',
+                          borderColor: '#5346c7',
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#6b5ce7',
-                        }
+                          borderColor: '#5346c7',
+                        },
                       }
                     }}
                     sx={{
@@ -348,7 +352,7 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
 
                   {loginError && (
                     <Typography variant="caption" sx={{
-                      color: '#f44336',
+                      color: 'grey',
                       textAlign: 'center',
                       fontSize: '0.75rem',
                       fontWeight: 500,
@@ -359,33 +363,52 @@ const SideButtons = ({ onLoginSuccess, onLogout }) => {
                   )}
 
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     fullWidth
                     onClick={handleDoctorLogin}
                     disabled={isLoading}
+                    startIcon={!isLoading && <LoginIcon />}
                     sx={{
                       mt: 1,
-                      py: 1.2,
-                      backgroundColor: '#6b5ce7',
+                      color: '#6b5ce7',
+                      borderColor: '#6b5ce7',
+                      borderWidth: '2px',
                       borderRadius: 2,
                       textTransform: 'none',
-                      fontWeight: 600,
+                      fontWeight: 500,
                       letterSpacing: '0.5px',
-                      boxShadow: '0 4px 10px rgba(107, 92, 231, 0.3)',
                       '&:hover': {
-                        backgroundColor: '#5346c7',
-                        boxShadow: '0 6px 15px rgba(107, 92, 231, 0.4)',
+                        borderColor: '#5346c7',
+                        backgroundColor: 'rgba(107, 92, 231, 0.04)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 15px rgba(107, 92, 231, 0.2)',
                       },
                       transition: 'all 0.3s ease',
                       position: 'relative',
+                      overflow: 'hidden',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 70%)',
+                        transform: 'translateX(-100%)',
+                        transition: 'all 0.6s ease',
+                      },
+                      '&:hover::after': {
+                        transform: 'translateX(100%)',
+                      }
                     }}
                   >
                     {isLoading ? (
-                      <CircularProgress size={24} sx={{ color: 'white' }} />
+                      <CircularProgress size={24} sx={{ color: '#6b5ce7' }} />
                     ) : (
                       'Login'
                     )}
                   </Button>
+
 
                   <Typography variant="caption" sx={{
                     color: '#666',

@@ -12,17 +12,13 @@ if not secret_key:
     raise ValueError("SECRET_KEY environment variable is not set")
 
 DOCTORS = {
-    "dr.smith": {
+    "Rachel Chadad": {
         "password": "pbkdf2:sha256:150000$abc123$abcdef1234567890abcdef1234567890abcdef1234567890",  
-        "name": "Dr. John Smith",
+        "name": "Dr. Rachel Chadad",
     }
 }
 
-
 def handle_doctor_login(username, password):
-    """
-    מטפל בהתחברות של רופא
-    """
     if username not in DOCTORS:
         return jsonify({
             "success": False,
@@ -31,7 +27,7 @@ def handle_doctor_login(username, password):
     
     doctor = DOCTORS[username]
     is_password_valid = False
-    if username == "dr.smith" and password == "password123":
+    if username == "Rachel Chadad" and password == "214901134":
         is_password_valid = True
     
     if not is_password_valid:
