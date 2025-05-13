@@ -65,7 +65,6 @@ const ChatBot = () => {
     ]);
   };
   
-  // שמירת מזהה השיחה בלוקל סטורג'
   useEffect(() => {
     if (sessionId) {
       localStorage.setItem('sessionId', sessionId);
@@ -96,7 +95,7 @@ const ChatBot = () => {
           },
           body: JSON.stringify({ 
             text: userMessage,
-            session_id: sessionId  // שליחת מזהה השיחה
+            session_id: sessionId 
           }),
         });
         if (!response.ok) {
@@ -104,7 +103,6 @@ const ChatBot = () => {
         }
         const data = await response.json();
         
-        // שמירת מזהה השיחה שהתקבל מהשרת
         if (data.session_id) {
           setSessionId(data.session_id);
         }
@@ -124,9 +122,6 @@ const ChatBot = () => {
       }
     }
   };
-
-  // שאר הקוד...
-
 
   return (
     <>
@@ -230,7 +225,7 @@ const ChatBot = () => {
           </Avatar>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1.1rem', mr: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500, fontSize: '1.1rem', mr: 1 }}>
                 MediBot
               </Typography>
             </Box>

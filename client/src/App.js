@@ -1,5 +1,6 @@
 import ChatBot from './components/ChatBot';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import AppointmentList from './components/AppointmentList';
 
 const App = () => {
   return (
