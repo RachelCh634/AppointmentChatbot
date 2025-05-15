@@ -58,14 +58,29 @@ pip install -r requirements.txt
 #### 🔐 Google Calendar API Credentials
 To connect with Google Calendar, you must provide a service account key file named credentials.json.
 
-#### Steps to set it up:
+##### Steps to set it up:
 - Go to Google Cloud Console.
 - Create a Service Account (under "IAM & Admin" → "Service Accounts").
 - Grant it the "Editor" role (or specific Calendar permissions).
 - Create and download a JSON key – save it as credentials.json inside the server/ folder.
 - Share your Google Calendar with the service account's email (found in the JSON file), with "Make changes to events" permission.
 
-#### ⚠️ Do not upload credentials.json to GitHub! Make sure it's listed in .gitignore.
+##### ⚠️ Do not upload credentials.json to GitHub! Make sure it's listed in .gitignore.
+
+#### 🔐 .env File – Required Environment Variables
+The application requires a .env file in the root directory with the following variables:
+```
+SECRET_KEY=your_secret_key_here
+DOCTOR_USERNAME=your_username_here
+DOCTOR_PASSWORD=your_password_here
+DOCTOR_FULL_NAME=your_full_name_here
+```
+##### Description:
+- SECRET_KEY – A secret string used by the server for internal encryption. Required.
+- DOCTOR_USERNAME – The doctor's login username.
+- DOCTOR_PASSWORD – The doctor's login password.
+- DOCTOR_FULL_NAME – The doctor's full name.
+##### 🛡️ Important: Never share your .env file. Make sure it's listed in your .gitignore
 
 #### Run the server:
 ```bash
