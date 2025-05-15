@@ -37,7 +37,6 @@ project-root/
 
 #### 🖥️ Backend (Python)
 - Message parsing: Understanding user messages, extracting date/time, detecting intent.
-- Natural language date/time parsing using libraries like parsedatetime or dateparser.
 - Google Calendar sync: Check availability, avoid conflicts.
 - Appointment creation: Automatically book available time slots in Google Calendar.
 - Error handling: Friendly responses to unclear or invalid requests.
@@ -69,8 +68,6 @@ To connect with Google Calendar, you must provide a service account key file nam
 #### ⚠️ Do not upload credentials.json to GitHub! Make sure it's listed in .gitignore.
 
 #### Run the server:
-
-Run server:
 ```bash
 python app.py
 ```
