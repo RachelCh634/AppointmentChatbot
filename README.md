@@ -74,13 +74,29 @@ SECRET_KEY=your_secret_key_here
 DOCTOR_USERNAME=your_username_here
 DOCTOR_PASSWORD=your_password_here
 DOCTOR_FULL_NAME=your_full_name_here
+CALENDAR_ID=your_calendar_id@group.calendar.google.com
 ```
 ##### Description:
 - SECRET_KEY – A secret string used by the server for internal encryption. Required.
 - DOCTOR_USERNAME – The doctor's login username.
 - DOCTOR_PASSWORD – The doctor's login password.
 - DOCTOR_FULL_NAME – The doctor's full name.
+- CALENDAR_ID – The ID of the Google Calendar where appointments will be created.
 ##### 🛡️ Important: Never share your .env file. Make sure it's listed in your .gitignore
+
+#### 📅 Google Calendar Setup
+To allow the app to create events in your Google Calendar:
+- Open Google Calendar.
+- On the left, hover over the desired calendar → click ⋮ → Settings and sharing.
+- Scroll to the Calendar ID section under Integrate calendar and copy it.
+- Paste it into your .env file as the value for CALENDAR_ID.
+
+#### 👥 Share the Calendar with Your Service Account
+In the same calendar settings page, scroll to Share with specific people.
+- Click Add people.
+- In your credentials.json file, locate the "client_email" field: ``` "client_email": "your-service-account@your-project.iam.gserviceaccount.com" ``` 
+- Paste that email address into the sharing field.
+- Grant it permission to Make changes to events.
 
 #### Run the server:
 ```bash
