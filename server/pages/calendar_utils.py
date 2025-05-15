@@ -14,6 +14,9 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build('calendar', 'v3', credentials=credentials)
 
 def is_time_available(start_time: datetime, duration_minutes=30) -> bool:
+    """
+    Check if the given time slot is available.
+    """
     if start_time.tzinfo is None:
         jerusalem = pytz.timezone('Asia/Jerusalem')
         start_time = jerusalem.localize(start_time).astimezone(timezone.utc)
@@ -32,6 +35,9 @@ def is_time_available(start_time: datetime, duration_minutes=30) -> bool:
 
 
 def create_appointment_event(start_time: datetime, user_name, user_email, duration_minutes=30):
+    """
+    Create a meeting event on the clinic calendar 
+    """
     print(f"Creating appointment event for {user_name} at {start_time}")
     end_time = start_time + timedelta(minutes=duration_minutes-1)
     event = {
@@ -46,6 +52,9 @@ def create_appointment_event(start_time: datetime, user_name, user_email, durati
 
 
 def get_upcoming_appointments(days=30):
+    """
+    Fetch upcoming appointments from the clinic calendar.
+    """
     now = datetime.now(timezone.utc)
     time_min = now.isoformat()
     time_max = (now + timedelta(days=days)).isoformat()

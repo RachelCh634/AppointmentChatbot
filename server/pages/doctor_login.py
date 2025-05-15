@@ -1,7 +1,5 @@
 import jwt
-import datetime
 from flask import jsonify
-from werkzeug.security import check_password_hash
 import os
 from dotenv import load_dotenv
 
@@ -11,14 +9,26 @@ secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
     raise ValueError("SECRET_KEY environment variable is not set")
 
+"""The doctor's details are in the ENV file to allow for easy changes."""
+
+DOCTOR_USERNAME = os.environ.get('DOCTOR_USERNAME')
+DOCTOR_PASSWORD = os.environ.get('DOCTOR_PASSWORD')
+DOCTOR_FULL_NAME = os.environ.get('DOCTOR_FULL_NAME', 'Dr. ' + DOCTOR_USERNAME if DOCTOR_USERNAME else '')
+
+if not DOCTOR_USERNAME or not DOCTOR_PASSWORD:
+    raise ValueError("DOCTOR_USERNAME and DOCTOR_PASSWORD environment variables must be set")
+
 DOCTORS = {
-    "Rachel Chadad": {
-        "password": "pbkdf2:sha256:150000$abc123$abcdef1234567890abcdef1234567890abcdef1234567890",  
-        "name": "Dr. Rachel Chadad",
+    DOCTOR_USERNAME: {
+        "password": DOCTOR_PASSWORD,  
+        "name": DOCTOR_FULL_NAME,
     }
 }
 
 def handle_doctor_login(username, password):
+    """
+    Handle the login for the doctor.
+    """
     if username not in DOCTORS:
         return jsonify({
             "success": False,
@@ -27,7 +37,8 @@ def handle_doctor_login(username, password):
     
     doctor = DOCTORS[username]
     is_password_valid = False
-    if username == "Rachel Chadad" and password == "214901134":
+    
+    if username == DOCTOR_USERNAME and password == DOCTOR_PASSWORD:
         is_password_valid = True
     
     if not is_password_valid:

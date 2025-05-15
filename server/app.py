@@ -20,6 +20,9 @@ CORS(app)
 
 @app.route('/appointment', methods=['POST', 'OPTIONS'])
 def appointment():
+    """
+    Navigates to the function for handling requests and messages from the user.
+    """
     if request.method == 'OPTIONS':
         response = jsonify({})
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -41,8 +44,12 @@ def appointment():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+
 @app.route('/doctor-login', methods=['POST', 'OPTIONS'])
 def doctor_login():
+    """
+    Navigates to the doctor login function
+    """
     if request.method == 'OPTIONS':
         response = jsonify({})
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -58,8 +65,12 @@ def doctor_login():
 
     return handle_doctor_login(username, password)
 
+
 @app.route('/google-login', methods=['POST'])
 def google_login():
+    """
+    Navigates to the google login function
+    """
     data = request.json
     print("Received data:", data) 
     google_token = data.get('googleToken')
@@ -72,6 +83,9 @@ def google_login():
 
 @app.route('/upcoming-appointments', methods=['GET', 'OPTIONS'])
 def get_upcoming_appointments_api():
+    """
+    Navigates to the view all upcoming events function and verifies that the user is a doctor
+    """
     if request.method == 'OPTIONS':
         response = jsonify({})
         response.headers.add('Access-Control-Allow-Origin', '*')

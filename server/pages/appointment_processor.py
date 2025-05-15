@@ -14,7 +14,7 @@ if not secret_key:
 
 def parse_appointment_request(text):
     """
-    Simple function to extract date and time from a text message in English.
+    Function to extract date and time from a text message.
     Returns a dictionary with date and time if found, or None if not.
     """
     text = text.lower()
@@ -52,7 +52,12 @@ def parse_appointment_request(text):
             
             matched_weekday = None
             
-            weekday_text = weekday_match.group(2) if len(weekday_match.groups()) > 1 else weekday_match.group(1)
+            weekday_text = ""
+            
+            if len(weekday_match.groups()) > 1:
+                weekday_text = weekday_match.group(2) if weekday_match.group(2) else ""
+            else:
+                weekday_text = weekday_match.group(1) if weekday_match.group(1) else ""
             
             english_weekdays = {
                 'monday': 0, 'mon': 0,
@@ -65,35 +70,38 @@ def parse_appointment_request(text):
             }
             
             hebrew_weekdays = {
-                'ראשון': 6,  # Sunday
-                'שני': 0,    # Monday
-                'שלישי': 1,  # Tuesday
-                'רביעי': 2,  # Wednesday
-                'חמישי': 3,  # Thursday
-                'שישי': 4,   # Friday
-                'שבת': 5     # Saturday
+                'ראשון': 6,  
+                'שני': 0,   
+                'שלישי': 1,  
+                'רביעי': 2,  
+                'חמישי': 3,  
+                'שישי': 4,  
+                'שבת': 5     
             }
             
-        if weekday_text.lower() in english_weekdays:
-            matched_weekday = english_weekdays[weekday_text.lower()]
-        elif weekday_text in hebrew_weekdays:
-            matched_weekday = hebrew_weekdays[weekday_text]
+            if weekday_text and weekday_text.lower() in english_weekdays:
+                matched_weekday = english_weekdays[weekday_text.lower()]
+            elif weekday_text and weekday_text in hebrew_weekdays:
+                matched_weekday = hebrew_weekdays[weekday_text]
 
-        if matched_weekday is not None:
-            is_next = (len(weekday_match.groups()) > 1 and weekday_match.group(1) == 'next') or 'הבא' in weekday_match.group(0)
+            if matched_weekday is not None:
+                is_next = False
+                if len(weekday_match.groups()) > 1 and weekday_match.group(1) == 'next':
+                    is_next = True
+                elif 'הבא' in weekday_match.group(0):
+                    is_next = True
 
-            if is_next:
-                days_to_add = ((matched_weekday - today_weekday) + 7) % 7
-                if is_day_in_current_hebrew_week(matched_weekday) == False:
-                    days_to_add += 7
+                if is_next:
+                    days_to_add = ((matched_weekday - today_weekday) + 7) % 7
+                    if is_day_in_current_hebrew_week(matched_weekday) == False:
+                        days_to_add += 7
+                else:
+                    days_to_add = ((matched_weekday - today_weekday) + 7) % 7
+                    if days_to_add == 0:
+                        days_to_add = 7
 
-            else:
-                days_to_add = ((matched_weekday - today_weekday) + 7) % 7
-                if days_to_add == 0:
-                    days_to_add = 7
-
-            extracted_date = today + timedelta(days=days_to_add)
-            break
+                extracted_date = today + timedelta(days=days_to_add)
+                break
 
     if not extracted_date:
         for pattern in date_patterns:
@@ -121,8 +129,8 @@ def parse_appointment_request(text):
                         else:  # Ambiguous, default to MM/DD
                             month, day = first_num, second_num
                         
-                        year = int(date_match.group(3)) if date_match.groups()[2] and date_match.group(3).isdigit() else datetime.now().year
-                        if year < 100:  # Handle 2-digit years
+                        year = int(date_match.group(3)) if date_match.groups()[2] and date_match.group(3) and date_match.group(3).isdigit() else datetime.now().year
+                        if year < 100:  
                             year += 2000
                     
                     try:
@@ -169,7 +177,9 @@ def parse_appointment_request(text):
     return appointment_details
 
 def _month_to_number(month_name):
-    """Convert month name to number"""
+    """
+    Convert month name to number
+    """
     months = {
         'january': 1, 'jan': 1,
         'february': 2, 'feb': 2,
@@ -188,13 +198,7 @@ def _month_to_number(month_name):
 
 def check_greeting_or_thanks(text):
     """
-    Check if the message is a greeting or thank you message and return appropriate response
-    
-    Args:
-        text (str): The user's message
-        
-    Returns:
-        str or None: Response message if it's a greeting or thank you, None otherwise
+    Check if the message is a greeting or thank you message and return appropriate response.
     """
     text_lower = text.lower()
     
@@ -257,15 +261,7 @@ def check_greeting_or_thanks(text):
 
 def handle_appointment_request(text, token):
     """
-    Handle a new appointment request
-    
-    Args:
-        text (str): The user's message
-        token (str): Authentication token (if any)
-        conversation_history (list): History of the conversation
-    
-    Returns:
-        dict: Response with message and status
+    Handling a new appointment request: checking for validity, extracting user data from the token and sending it to the function that adds the appointment to the calendar. 
     """
     greeting_response = check_greeting_or_thanks(text)
     if greeting_response:
@@ -315,7 +311,6 @@ def handle_appointment_request(text, token):
     
     try:
         event = create_appointment_event(appointment_datetime, user_name, user_email)
-        
         return {
             "message": f"Appointment scheduled for {appointment_datetime.strftime('%Y-%m-%d')} at {appointment_datetime.strftime('%H:%M')}.",
             "status": "success",
@@ -328,6 +323,9 @@ def handle_appointment_request(text, token):
         }
 
 def is_within_clinic_hours(dt):
+    """
+    Check if the given datetime is within clinic hours.
+    """
     if not dt:
         return False
 
@@ -345,15 +343,19 @@ def is_within_clinic_hours(dt):
     else:
         return False 
 
-
 def is_valid_appointment_time(appointment_datetime):
+    """
+    Check if the appointment time is valid.
+    """
     minute = appointment_datetime.minute
     if minute not in [0, 30]:
         return False, "Appointments must start at the hour (XX:00) or half hour (XX:30). Please choose a valid time."
     return True, ""
 
-
 def is_day_in_current_hebrew_week(target_weekday):
+    """
+    Check if the target day was already in the current Hebrew week. 
+    """
     today = datetime.now()
     today_weekday = today.weekday()  
     today_hebrew_weekday = (today_weekday + 1) % 7

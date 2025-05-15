@@ -12,6 +12,9 @@ if not secret_key:
 
 
 def handle_google_login(google_token):
+    """
+    Handle the login with Google.
+    """
     try:
         print(f"Received token: {google_token}")
 
